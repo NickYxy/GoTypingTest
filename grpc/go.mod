@@ -1,4 +1,4 @@
-module grpc
+module github.com/NickYxy/GoTypingTest/grpc
 
 go 1.20
 
