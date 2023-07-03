@@ -18,6 +18,7 @@ func main() {
 
 	videoController := controllers.NewVideoController()
 	videoGroup := server.Group("/videos")
+	videoGroup.Use(middlewares.Mylogger())
 
 	// GET /videos
 	videoGroup.GET("/", videoController.GetAll)

@@ -21,7 +21,7 @@ type controller struct {
 }
 
 func NewVideoController() VideoController {
-	return &controller{}
+	return &controller{videos: make([]models.Video, 0)}
 }
 
 type generator struct {
@@ -46,12 +46,18 @@ func (c *controller) Update(context *gin.Context) {
 	var videoToUpdate models.Video
 	if err := context.ShouldBind(&videoToUpdate); err != nil {
 		context.String(400, "bad request %v", err)
+		return
 	}
 
+	if err := context.ShouldBindJSON(&videoToUpdate); err != nil {
+		context.String(400, "bad request %v", err)
+		return
+	}
 	for idx, video := range c.videos {
 		if video.Id == videoToUpdate.Id {
 			c.videos[idx] = videoToUpdate
-			context.String(200, "video with id %d has been updated", videoToUpdate.Id)
+			context.String(200, "success, video with id %d has been updated", videoToUpdate.Id)
+			return
 		}
 	}
 
@@ -71,11 +77,13 @@ func (c *controller) Delete(context *gin.Context) {
 	var videoToDelete models.Video
 	if err := context.ShouldBind(&videoToDelete); err != nil {
 		context.String(400, "bad request %v", err)
+		return
 	}
 	for idx, video := range c.videos {
 		if video.Id == videoToDelete.Id {
 			c.videos = append(c.videos[0:idx], c.videos[idx+1:len(c.videos)]...)
 			context.String(200, "success, video with %d has been deleted", videoToDelete.Id)
+			return
 		}
 	}
 	context.String(400, "bad request, cannot find video with %d to delete", videoToDelete.Id)
