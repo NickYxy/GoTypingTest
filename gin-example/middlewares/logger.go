@@ -7,6 +7,6 @@ import (
 
 func MyLogger() gin.HandlerFunc {
 	return gin.LoggerWithFormatter(func(params gin.LogFormatterParams) string {
-		return fmt.Printf("%s %s %s\n", params.ClientIP, params.Method, params.Path)
+		return fmt.Sprintln("%s %s %s\n", params.ClientIP, params.Method, params.Path)
 	})
 }

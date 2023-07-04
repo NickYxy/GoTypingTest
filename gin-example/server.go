@@ -2,12 +2,14 @@ package main
 
 import (
 	"github.com/NickYxy/GoTypingTest/gin-example/controllers"
+	"github.com/NickYxy/GoTypingTest/gin-example/middlewares"
 	"github.com/gin-gonic/gin"
 	"log"
 )
 
 func main() {
 	server := gin.Default()
+	server.Use(middlewares.MyAuth())
 
 	server.GET("/ping", func(context *gin.Context) {
 		context.String(200, "%s", "pong")
@@ -18,7 +20,7 @@ func main() {
 
 	videoController := controllers.NewVideoController()
 	videoGroup := server.Group("/videos")
-	videoGroup.Use(middlewares.Mylogger())
+	videoGroup.Use(middlewares.MyLogger())
 
 	// GET /videos
 	videoGroup.GET("/", videoController.GetAll)
