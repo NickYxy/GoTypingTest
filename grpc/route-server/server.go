@@ -43,7 +43,6 @@ func inRange(point *pb.Point, rect *pb.Rectangle) bool {
 	return false
 }
 
-
 func (s *routeGuideServer) ListFeatures(rectangle *pb.Rectangle, stream pb.RouteGuide_ListFeaturesServer) error {
 	for _, feature := range s.features {
 		if inRange(feature.Location, rectangle) {
@@ -55,7 +54,6 @@ func (s *routeGuideServer) ListFeatures(rectangle *pb.Rectangle, stream pb.Route
 
 	return nil
 }
-
 
 func toRadians(num float64) float64 {
 	return num * math.Pi / float64(180)
@@ -82,7 +80,6 @@ func calcDistance(p1 *pb.Point, p2 *pb.Point) int32 {
 	return int32(distance)
 }
 
-
 func (s *routeGuideServer) RecordRoute(stream pb.RouteGuide_RecordRouteServer) error {
 	startTime := time.Now()
 	var pointCount, distance int32
@@ -98,9 +95,11 @@ func (s *routeGuideServer) RecordRoute(stream pb.RouteGuide_RecordRouteServer) e
 				ElapsedTime: int32(endTime.Sub(startTime).Seconds()),
 			})
 		}
-		if err != nil {return err}
+		if err != nil {
+			return err
+		}
 
-		pointCount ++
+		pointCount++
 		if prevPoint != nil {
 			distance += calcDistance(prevPoint, point)
 		}
@@ -130,7 +129,6 @@ func (s *routeGuideServer) recommendOnce(request *pb.RecommendationRequest) (*pb
 		return nearest, nil
 	}
 }
-
 
 func (s *routeGuideServer) Recommend(stream pb.RouteGuide_RecommendServer) error {
 	for {

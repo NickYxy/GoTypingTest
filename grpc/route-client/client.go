@@ -14,16 +14,16 @@ import (
 )
 
 func runFirst(client pb.RouteGuideClient) {
-	 feature, err := client.GetFeature(context.Background(), &pb.Point{
-	 	Latitude: 310235000,
-	 	Longitude: 121437403,
-	 })
+	feature, err := client.GetFeature(context.Background(), &pb.Point{
+		Latitude:  310235000,
+		Longitude: 121437403,
+	})
 
-	 if err != nil {
-		 log.Fatalln(err)
-	 }
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	 log.Println(feature)
+	log.Println(feature)
 }
 
 func runSecond(client pb.RouteGuideClient) {
@@ -41,7 +41,9 @@ func runSecond(client pb.RouteGuideClient) {
 		if err == io.EOF {
 			break
 		}
-		if err != nil {log.Fatalln(err)}
+		if err != nil {
+			log.Fatalln(err)
+		}
 
 		fmt.Println(feature)
 	}
