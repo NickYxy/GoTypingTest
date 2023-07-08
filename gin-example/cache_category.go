@@ -1,4 +1,4 @@
-package GoTypingTest
+package main
 
 import (
 	"fmt"
