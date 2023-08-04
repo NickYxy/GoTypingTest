@@ -11,34 +11,27 @@ func main() {
 
 	go func() {
 		i := 1
-		for {
-			select {
-			case <-ch1:
-				fmt.Print(i)
-				i++
-				fmt.Print(i)
-				i++
-				ch2 <- true
-			}
+		for <-ch1 {
+			fmt.Print(i)
+			i++
+			fmt.Print(i)
+			i++
+			ch2 <- true
 		}
 	}()
 
 	go func() {
 		j := 'A'
-		for {
-			select {
-			case <-ch2:
-
-				fmt.Print(string(j))
-				j++
-				fmt.Print(string(j))
-				j++
-				if j > 'Z' {
-					ch3 <- true
-					return
-				}
-				ch1 <- true
+		for <-ch2 {
+			fmt.Print(string(j))
+			j++
+			fmt.Print(string(j))
+			j++
+			if j > 'Z' {
+				ch3 <- true
+				return
 			}
+			ch1 <- true
 		}
 	}()
 
