@@ -1,8 +1,17 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"runtime"
+)
 
-func Trace(name string) func() {
+func Trace() func() {
+	pc, _, _, ok := runtime.Caller(1)
+	if !ok {
+		panic(any("caller not found"))
+	}
+	fn := runtime.FuncForPC(pc)
+	name := fn.Name()
 	fmt.Println("enter:", name)
 	return func() {
 		fmt.Println("exit:", name)
@@ -10,15 +19,15 @@ func Trace(name string) func() {
 }
 
 func foo() {
-	defer Trace("foo")()
+	defer Trace()()
 	bar()
 }
 
 func bar() {
-	defer Trace("bar")()
+	defer Trace()()
 }
 
 func main() {
-	defer Trace("main")()
+	defer Trace()()
 	foo()
 }
