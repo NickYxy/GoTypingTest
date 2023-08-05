@@ -21,7 +21,7 @@ func Rewrite(filename string) ([]byte, error) {
 		return nil, nil
 	}
 
-	astutil.AddImport(fset, oldAST, "github.com/NickYxy/GoTypingTest/instrument")
+	astutil.AddImport(fset, oldAST, "github.com/NickYxy/GoTypingTest/instrument_trace")
 
 	addDeferTraceIntoFuncDecls(oldAST)
 
@@ -35,9 +35,10 @@ func Rewrite(filename string) ([]byte, error) {
 }
 
 func addDeferTraceIntoFuncDecls(f *ast.File) {
-	for _, decl := range f.Decls {
-		fd, ok := decl.(*ast.FuncDecl)
+	for _, decl := range f.Decls { // 遍历所有声明语句
+		fd, ok := decl.(*ast.FuncDecl) // 类型断言：是否为函数声明
 		if ok {
+			// 如果是函数声明，则注入跟踪设施
 			addDeferStmt(fd)
 		}
 	}
@@ -67,7 +68,7 @@ func addDeferStmt(fd *ast.FuncDecl) (added bool) {
 			continue
 		}
 
-		if (x.Name == "functrace") && (se.Sel.Name == "Trace") {
+		if (x.Name == "instrument_trace") && (se.Sel.Name == "Trace") {
 			return false
 		}
 	}
@@ -76,7 +77,7 @@ func addDeferStmt(fd *ast.FuncDecl) (added bool) {
 		Call: &ast.CallExpr{
 			Fun: &ast.CallExpr{
 				Fun: &ast.SelectorExpr{
-					X:   &ast.Ident{Name: "functrace"},
+					X:   &ast.Ident{Name: "instrument_trace"},
 					Sel: &ast.Ident{Name: "Trace"},
 				},
 			},

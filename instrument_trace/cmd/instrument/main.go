@@ -1,12 +1,12 @@
-package instrument
+package main
 
 import (
 	"flag"
 	"fmt"
-	"github.com/NickYxy/GoTypingTest/instrument_trace/instrumenter"
-	"github.com/go-playground/locales/ast"
 	"os"
 	"path/filepath"
+
+	"github.com/NickYxy/GoTypingTest/instrument_trace/instrumenter/ast"
 )
 
 var (
@@ -46,10 +46,7 @@ func main() {
 		return
 	}
 
-	var ins instrumenter.Instrumenter
-
-	ins = ast.New("github.com/NickYxy/GoTypingTest/instrument_trace", "trace", "Trace")
-	newSrc, err := ins.Instrument(file)
+	newSrc, err := ast.Rewrite(file)
 	if err != nil {
 		panic(any(err))
 	}
