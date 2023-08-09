@@ -252,8 +252,8 @@ func (wal *WAL) NewReaderWithStart(startPos *ChunkPosition) (*Reader, error) {
 			}
 			return nil, err
 		}
-		return reader, nil
 	}
+	return reader, nil
 }
 
 // NewReader returns a new reader for the WAL
@@ -299,6 +299,119 @@ func (r *Reader) CurrentChunkPosition() *ChunkPosition {
 		BlockNumber: reader.blockNumber,
 		ChunkOffset: reader.chunkOffset,
 	}
+}
+
+// Write writes the data to the WAL.
+// Actually, it writes the data to the active segment file.
+// It returns the position of the data in the WAL, and an error if any.
+func (wal *WAL) Write(data []byte) (*ChunkPosition, error) {
+	wal.mu.Lock()
+	defer wal.mu.Unlock()
+	if int64(len(data))+chunkHeaderSize > wal.options.SegmentSize {
+		return nil, ErrValueTooLarge
+	}
+	// if the active segment file is full, sync it and create a new one.
+	if wal.isFull(int64(len(data))) {
+		if err := wal.activeSegment.Sync(); err != nil {
+			return nil, err
+		}
+		wal.bytesWrite = 0
+		segment, err := openSegmentFile(wal.options.DirPath, wal.options.SegmentFileExt,
+			wal.activeSegment.id+1, wal.blockCache)
+		if err != nil {
+			return nil, err
+		}
+		wal.olderSegments[wal.activeSegment.id] = wal.activeSegment
+		wal.activeSegment = segment
+	}
+
+	// write the data to the active segment file.
+	position, err := wal.activeSegment.Write(data)
+	if err != nil {
+		return nil, err
+	}
+
+	// update the bytesWrite field.
+	wal.bytesWrite += position.ChunkSize
+
+	// sync the active segment file if needed.
+	var needSync = wal.options.Sync
+	if !needSync && wal.options.BytesPerSync > 0 {
+		needSync = wal.bytesWrite >= wal.options.BytesPerSync
+	}
+	if needSync {
+		if err := wal.activeSegment.Sync(); err != nil {
+			return nil, err
+		}
+		wal.bytesWrite = 0
+	}
+
+	return position, nil
+}
+
+// Read reads the data from the WAL according to the given position.
+func (wal *WAL) Read(pos *ChunkPosition) ([]byte, error) {
+	wal.mu.RLock()
+	defer wal.mu.RUnlock()
+
+	// find the segment file according to the position.
+	var segment *segment
+	if pos.SegmentId == wal.activeSegment.id {
+		segment = wal.activeSegment
+	} else {
+		segment = wal.olderSegments[pos.SegmentId]
+	}
+
+	if segment == nil {
+		return nil, fmt.Errorf("segment file %d%s not found", pos.SegmentId, wal.options.SegmentFileExt)
+	}
+
+	// read the data from the segment file.
+	return segment.Read(pos.BlockNumber, pos.ChunkOffset)
+}
+
+// Close closes the WAL.
+func (wal *WAL) Close() error {
+	wal.mu.Lock()
+	defer wal.mu.Unlock()
+
+	// purge the block cache.
+	if wal.blockCache != nil {
+		wal.blockCache.Purge()
+	}
+
+	// close all segment files.
+	for _, segment := range wal.olderSegments {
+		if err := segment.Close(); err != nil {
+			return err
+		}
+	}
+	wal.olderSegments = nil
+
+	// close the active segment file.
+	return wal.activeSegment.Close()
+}
+
+// Delete deletes all segment files of the WAL.
+func (wal *WAL) Delete() error {
+	wal.mu.Lock()
+	defer wal.mu.Unlock()
+
+	// purge the block cache.
+	if wal.blockCache != nil {
+		wal.blockCache.Purge()
+	}
+
+	// delete all segment files.
+	for _, segment := range wal.olderSegments {
+		if err := segment.Remove(); err != nil {
+			return err
+		}
+	}
+	wal.olderSegments = nil
+
+	// delete the active segment file.
+	return wal.activeSegment.Remove()
 }
 
 // Sync syncs the active segment file into stable storage like disk.

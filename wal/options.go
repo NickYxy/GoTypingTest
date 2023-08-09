@@ -11,7 +11,7 @@ type Options struct {
 
 	BlockCache uint32
 
-	sync bool
+	Sync bool
 
 	BytesPerSync uint32
 }
@@ -28,6 +28,6 @@ var DefaultOptions = Options{
 	SegmentSize:    GB,
 	SegmentFileExt: ".SEG",
 	BlockCache:     32 * KB * 10,
-	sync:           false,
+	Sync:           false,
 	BytesPerSync:   0,
 }
