@@ -1,1 +1,1 @@
-package tiktok
+package main

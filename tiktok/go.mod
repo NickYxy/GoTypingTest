@@ -1,3 +1,3 @@
-module github.com/NickYxy/GoTypingTest/tiktok
+module Tiktok
 
 go 1.20
