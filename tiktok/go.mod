@@ -3,6 +3,7 @@ module Tiktok
 go 1.20
 
 require (
+	github.com/dutchcoders/goftp v0.0.0-20170301105846-ed59a591ce14
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/gorm v1.25.4
 )
