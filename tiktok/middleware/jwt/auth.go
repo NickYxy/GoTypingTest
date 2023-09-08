@@ -3,6 +3,7 @@ package jwt
 import (
 	"Tiktok/config"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"net/http"
 	"strings"
 )
@@ -36,7 +37,7 @@ func Auth() gin.HandlerFunc {
 		} else {
 			println("token 正确")
 		}
-		context.Set("userId", token.Id)
+		context.Set("userId", token.ID)
 		context.Next()
 	}
 }
@@ -58,7 +59,7 @@ func AuthWithoutLogin() gin.HandlerFunc {
 					StatusMsg:  "Token Error",
 				})
 			} else {
-				userId = token.Id
+				userId = token.ID
 				println("token 正确")
 			}
 		}
@@ -68,12 +69,12 @@ func AuthWithoutLogin() gin.HandlerFunc {
 }
 
 // parseToken 解析token
-func parseToken(token string) (*jwt.StandardClaims, error) {
-	jwtToken, err := jwt.ParseWithClaims(token, &jwt.StandardClaims{}, func(token *jwt.Token) (i interface{}, e error) {
+func parseToken(token string) (*jwt.RegisteredClaims, error) {
+	jwtToken, err := jwt.ParseWithClaims(token, &jwt.RegisteredClaims{}, func(token *jwt.Token) (i interface{}, e error) {
 		return []byte(config.Secret), nil
 	})
 	if err == nil && jwtToken != nil {
-		if claim, ok := jwtToken.Claims.(*jwt.StandardClaims); ok && jwtToken.Valid {
+		if claim, ok := jwtToken.Claims.(*jwt.RegisteredClaims); ok && jwtToken.Valid {
 			return claim, nil
 		}
 	}
