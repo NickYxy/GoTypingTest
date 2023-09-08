@@ -8,6 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang-jwt/jwt/v5 v5.0.0
+	github.com/importcjj/sensitive v0.0.0-20200106142752-42d1c505be7b
 	github.com/streadway/amqp v1.1.0
 	golang.org/x/crypto v0.11.0
 	gorm.io/driver/mysql v1.5.1
