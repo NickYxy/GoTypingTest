@@ -9,18 +9,20 @@ option go_package = "customer/api/customer;customer";
 service Customer {
   rpc GetVerifyCode (GetVerifyCodeReq) returns (GetVerifyCodeResp) {
     option (google.api.http) = {
-      get: "/customer/get-verify-code"
+      get: "/customer/get-verify-code/{telephone}"
     };
   }
 
 }
 
 message GetVerifyCodeReq {
-  string Telephone = 1;
+  string telephone = 1;
 };
 
 message GetVerifyCodeResp {
-  int32 Code = 1;
-  string Message = 2;
-  string Data = 3;
+  int32 code = 1;
+  string message = 2;
+  string verify_code = 3;
+  int64 verify_code_time = 4;
+  int32 verify_code_life = 5;
 }

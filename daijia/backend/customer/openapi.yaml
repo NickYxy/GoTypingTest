@@ -6,14 +6,15 @@ info:
     title: Customer API
     version: 0.0.1
 paths:
-    /customer/get-verify-code:
+    /customer/get-verify-code/{telephone}:
         get:
             tags:
                 - Customer
             operationId: Customer_GetVerifyCode
             parameters:
-                - name: Telephone
-                  in: query
+                - name: telephone
+                  in: path
+                  required: true
                   schema:
                     type: string
             responses:
@@ -34,13 +35,19 @@ components:
         GetVerifyCodeResp:
             type: object
             properties:
-                Code:
+                code:
                     type: integer
                     format: int32
-                Message:
+                message:
                     type: string
-                Data:
+                verifyCode:
                     type: string
+                verifyCodeTime:
+                    type: integer
+                    format: int64
+                verifyCodeLife:
+                    type: integer
+                    format: int32
         GoogleProtobufAny:
             type: object
             properties:
