@@ -2,7 +2,9 @@ package main
 
 import (
 	"flag"
+	"math/rand"
 	"os"
+	"time"
 
 	"verifyCode/internal/conf"
 
@@ -66,22 +68,22 @@ func main() {
 	defer c.Close()
 
 	if err := c.Load(); err != nil {
-		panic(err)
+		panic(any(err))
 	}
 
 	var bc conf.Bootstrap
 	if err := c.Scan(&bc); err != nil {
-		panic(err)
+		panic(any(err))
 	}
 
 	app, cleanup, err := wireApp(bc.Server, bc.Data, logger)
 	if err != nil {
-		panic(err)
+		panic(any(err))
 	}
 	defer cleanup()
-
+	rand.NewSource(time.Now().UnixNano())
 	// start and wait for stop signal
 	if err := app.Run(); err != nil {
-		panic(err)
+		panic(any(err))
 	}
 }
